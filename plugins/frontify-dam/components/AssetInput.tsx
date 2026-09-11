@@ -12,10 +12,16 @@ type Props = ObjectInputProps & {
 }
 
 export function AssetInput(props: Props) {
-  const {onChange, schemaType, defaults} = props
+  const {onChange, path, schemaType, defaults} = props
   const value = props.value as FrontifyStoredAsset | undefined
   const finder = useFinder(defaults, schemaType.options as FrontifyFieldOptions | undefined, false)
   const selected = Boolean(value?.id)
+  const inPortableText = path.some((segment) => typeof segment === 'object' && segment !== null && '_key' in segment)
+
+  const closeWithoutPick = () => {
+    finder.closeFinder()
+    if (inPortableText && !selected) onChange(unset())
+  }
 
   return (
     <Stack space={3}>
@@ -44,10 +50,13 @@ export function AssetInput(props: Props) {
       <FinderDialog
         open={finder.open}
         openingOptions={finder.openingOptions}
-        onClose={finder.closeFinder}
+        onClose={closeWithoutPick}
         onAssetsChosen={(assets) => {
           const asset = assets[0]
-          if (!asset) return
+          if (!asset) {
+            closeWithoutPick()
+            return
+          }
           onChange(
             set({
               ...toStoredAsset(asset),

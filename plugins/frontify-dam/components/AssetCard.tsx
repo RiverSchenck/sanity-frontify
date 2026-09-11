@@ -11,8 +11,9 @@ import {VideoPlayer} from './VideoPlayer'
 type Props = {
   asset: FrontifyStoredAsset
   onRemove?: () => void
+  onReplace?: () => void
   size?: number
-  layout?: 'tile' | 'hero'
+  layout?: 'tile' | 'hero' | 'block'
   cdn?: CdnMode
 }
 
@@ -88,14 +89,16 @@ function FilePoster({asset}: {asset: FrontifyStoredAsset}) {
 export function AssetCard({
   asset,
   onRemove,
+  onReplace,
   size = 168,
   layout = 'tile',
   cdn = DEFAULT_CDN,
 }: Props) {
   const isHero = layout === 'hero'
+  const isBlock = layout === 'block'
   const imageSrc = getFrontifyPreviewImageUrl(asset, {
     cdn,
-    width: isHero ? 480 : Math.ceil(size * 2),
+    width: isBlock ? 1200 : isHero ? 480 : Math.ceil(size * 2),
   })
   const mediaSrc = asset.previewUrl || asset.downloadUrl
   const audioSrc = isAudioAsset(asset) ? mediaSrc : undefined
@@ -108,10 +111,18 @@ export function AssetCard({
   const alt = asset.isDecorative ? '' : asset.alternativeText || label
   const meta = metaLine(asset)
   const showImage = Boolean(imageSrc) && !broken && !audioSrc && !videoSrc && !pdfSrc
+  const mediaStyle: CSSProperties = isBlock
+    ? {
+        ...MEDIA,
+        aspectRatio:
+          audioSrc ? '4 / 1' : asset.width && asset.height ? `${asset.width} / ${asset.height}` : '16 / 9',
+        maxHeight: audioSrc ? 160 : 420,
+      }
+    : MEDIA
 
   return (
-    <Card radius={2} border overflow="hidden" style={{width: isHero ? 240 : size}}>
-      <div style={MEDIA}>
+    <Card radius={2} border overflow="hidden" style={{width: isBlock ? '100%' : isHero ? 240 : size}}>
+      <div style={mediaStyle}>
         {audioSrc ? (
           <AudioPlayer src={audioSrc} poster={imageSrc} label={label} duration={asset.duration} />
         ) : videoSrc ? (
@@ -136,16 +147,21 @@ export function AssetCard({
           </Card>
         )}
       </div>
-      <Stack space={2} padding={2}>
-        <Text size={1} weight="medium" title={label} textOverflow="ellipsis">
-          {label}
-        </Text>
-        {meta && (
-          <Text size={0} muted>
-            {meta}
+      <Flex align="center" gap={3} padding={2} wrap="wrap">
+        <Stack space={2} flex={1} style={{minWidth: 0}}>
+          <Text size={1} weight="medium" title={label} textOverflow="ellipsis">
+            {label}
           </Text>
+          {meta && (
+            <Text size={0} muted>
+              {meta}
+            </Text>
+          )}
+        </Stack>
+        {onReplace && (
+          <Button mode="ghost" text="Replace" fontSize={1} padding={2} onClick={onReplace} />
         )}
-      </Stack>
+      </Flex>
     </Card>
   )
 }

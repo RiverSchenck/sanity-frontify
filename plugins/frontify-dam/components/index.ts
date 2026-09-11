@@ -1,3 +1,4 @@
+export {AssetBlock} from './AssetBlock'
 export {AssetCard} from './AssetCard'
 export {AssetInput} from './AssetInput'
 export {AssetsInput} from './AssetsInput'

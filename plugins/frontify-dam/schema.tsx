@@ -1,5 +1,6 @@
-import {defineField, defineType, type ArrayOfObjectsInputProps, type ObjectInputProps} from 'sanity'
+import {defineField, defineType, type ArrayOfObjectsInputProps, type BlockProps, type ObjectInputProps} from 'sanity'
 
+import {AssetBlock} from './components/AssetBlock'
 import {AssetInput} from './components/AssetInput'
 import {AssetsInput} from './components/AssetsInput'
 import {DEFAULT_CDN, type FrontifyPluginOptions} from './types'
@@ -138,6 +139,7 @@ export function createFrontifySchemaTypes(defaults: FrontifyPluginOptions) {
       fields: storedFields,
       components: {
         input: (props: ObjectInputProps) => <AssetInput {...props} defaults={defaults} />,
+        block: (props: BlockProps) => <AssetBlock {...props} defaults={defaults} />,
       },
       preview: {
         select: {
@@ -149,10 +151,11 @@ export function createFrontifySchemaTypes(defaults: FrontifyPluginOptions) {
           downloadUrl: 'downloadUrl',
           thumbnailUrl: 'thumbnailUrl',
           icon: 'icon',
+          id: 'id',
         },
-        prepare({title, filename, type, previewUrl, dynamicPreviewUrl, downloadUrl, thumbnailUrl, icon}) {
+        prepare({title, filename, type, previewUrl, dynamicPreviewUrl, downloadUrl, thumbnailUrl, icon, id}) {
           return {
-            title: title || filename || 'Frontify asset',
+            title: title || filename || (id ? 'Frontify asset' : 'Select from Frontify'),
             subtitle: type,
             media: frontifyPreviewMedia(
               getFrontifyPreviewImageUrl(
