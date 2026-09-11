@@ -41,8 +41,9 @@ export default defineType({
     defineField({
       name: 'cover',
       type: 'image',
-      title: 'Cover',
-      description: 'Image stored in Sanity.',
+      title: 'Cover (legacy Frontify)',
+      description:
+        'Official Frontify plugin: pick from Finder, then Sanity stores a copy of the file.',
       options: {hotspot: true},
     }),
     defineField({
@@ -52,7 +53,11 @@ export default defineType({
       of: [
         {type: 'block'},
         {type: 'frontifyAsset', title: 'Frontify'},
-        {type: 'image', title: 'Image', options: {hotspot: true}},
+        {
+          type: 'image',
+          title: 'Image (legacy Frontify)',
+          options: {hotspot: true},
+        },
       ],
     }),
     defineField({
